@@ -395,7 +395,6 @@ exports[`SyntaxHighlighter component renders custom react component where pre ta
     }
 
     
-
   </code>
 </p>
 `;
@@ -795,7 +794,6 @@ exports[`SyntaxHighlighter renders div where pre tag is by default 1`] = `
     }
 
     
-
   </code>
 </div>
 `;

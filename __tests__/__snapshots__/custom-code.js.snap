@@ -395,7 +395,6 @@ exports[`SyntaxHighlighter component renders custom react component where code t
     }
 
     
-
   </section>
 </pre>
 `;
@@ -795,7 +794,6 @@ exports[`SyntaxHighlighter renders div where code tag is by default 1`] = `
     }
 
     
-
   </div>
 </pre>
 `;

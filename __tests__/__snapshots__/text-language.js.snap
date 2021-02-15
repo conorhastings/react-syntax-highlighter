@@ -45,7 +45,6 @@ exports[`SyntaxHighlighter component renders monospace text when text is passed 
     }
 
     
-
   </code>
 </pre>
 `;
