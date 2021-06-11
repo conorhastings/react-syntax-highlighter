@@ -2,6 +2,38 @@ import React from 'react';
 import createElement from './create-element';
 import checkForListedLanguage from './checkForListedLanguage';
 
+class Memoize {
+  constructor() {
+    this.cache = new Map();
+  }
+
+  update(key, valueFn, dependencies) {
+    console.log(arguments);
+    if (!this.cache.has(key)) {
+      const value = valueFn();
+      this.cache.set(key, { value, dependencies });
+      
+      return this.cache.get(key).value;
+    }
+    const {
+      value: currentValue,
+      dependencies: currentDependenciesValues
+    } = this.cache.get(key);
+    if (
+      dependencies.some(
+        (dep, index) => dep !== currentDependenciesValues[index]
+      )
+    ) {
+      const newValue = valueFn();
+      this.cache.set(key, { value: newValue, dependencies });
+      return newValue;
+    }
+    return currentValue;
+  }
+}
+const memo = new Memoize();
+console.log(memo);
+
 const newLineRegex = /\n/g;
 function getNewLines(str) {
   return str.match(newLineRegex);
@@ -333,7 +365,7 @@ export default function(defaultAstGenerator, defaultStyle) {
     wrapLines,
     wrapLongLines = false,
     lineProps = {},
-    renderer,
+    renderer = defaultRenderer,
     PreTag = 'pre',
     CodeTag = 'code',
     code = Array.isArray(children) ? children[0] : children,
@@ -381,15 +413,23 @@ export default function(defaultAstGenerator, defaultStyle) {
      */
     if ((wrapLines === undefined && renderer) || wrapLongLines)
       wrapLines = true;
-
-    renderer = renderer || defaultRenderer;
-    const defaultCodeValue = [{ type: 'text', value: code }];
-    const codeTree = getCodeTree({
-      astGenerator,
-      language,
-      code,
-      defaultCodeValue
-    });
+    const defaultCodeValue = memo.update(
+      'defaultCodeValue',
+      () => [{ type: 'text', value: code }],
+      [code]
+    );
+    console.log(defaultCodeValue, memo);
+    const codeTree = memo.update(
+      'codeTree',
+      () =>
+        getCodeTree({
+          astGenerator,
+          language,
+          code,
+          defaultCodeValue
+        }),
+      [astGenerator, language, code, defaultCodeValue]
+    );
     if (codeTree.language === null) {
       codeTree.value = defaultCodeValue;
     }
@@ -397,16 +437,31 @@ export default function(defaultAstGenerator, defaultStyle) {
     // determine largest line number so that we can force minWidth on all linenumber elements
     const largestLineNumber = codeTree.value.length + startingLineNumber;
 
-    const rows = processLines(
-      codeTree,
-      wrapLines,
-      lineProps,
-      showLineNumbers,
-      showInlineLineNumbers,
-      startingLineNumber,
-      largestLineNumber,
-      lineNumberStyle,
-      wrapLongLines
+    const rows = memo.update(
+      'processLines',
+      () =>
+        processLines(
+          codeTree,
+          wrapLines,
+          lineProps,
+          showLineNumbers,
+          showInlineLineNumbers,
+          startingLineNumber,
+          largestLineNumber,
+          lineNumberStyle,
+          wrapLongLines
+        ),
+      [
+        codeTree,
+        wrapLines,
+        lineProps,
+        showLineNumbers,
+        showInlineLineNumbers,
+        startingLineNumber,
+        largestLineNumber,
+        lineNumberStyle,
+        wrapLongLines
+      ]
     );
 
     if (wrapLongLines) {
