@@ -58,16 +58,16 @@ export default {
         "color": "#a31515"
     },
     "hljs-deletion": {
-        "color": "#2b91af"
+        "color": "#237891"
     },
     "hljs-selector-attr": {
-        "color": "#2b91af"
+        "color": "#237891"
     },
     "hljs-selector-pseudo": {
-        "color": "#2b91af"
+        "color": "#237891"
     },
     "hljs-meta": {
-        "color": "#2b91af"
+        "color": "#237891"
     },
     "hljs-doctag": {
         "color": "#808080"
