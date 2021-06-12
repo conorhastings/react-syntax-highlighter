@@ -224,15 +224,15 @@ function processLines(
             tree[index + 1] &&
             tree[index + 1].children &&
             tree[index + 1].children[0];
+          const lastLineInPreviousSpan = { type: 'text', value: `${text}` };
           if (stringChild) {
-            const lastLineInPreviousSpan = { type: 'text', value: `${text}` };
             const newElem = createLineElement({
               children: [lastLineInPreviousSpan],
               className: node.properties.className
             });
             tree.splice(index + 1, 0, newElem);
           } else {
-            const children = [newChild];
+            const children = [lastLineInPreviousSpan];
             const line = createLine(
               children,
               lineNumber,

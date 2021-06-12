@@ -175,7 +175,6 @@ exports[`Syntaxhighliter correctly renders multi-line comments in arduino langua
     }
 
     
-
   </code>
 </pre>
 `;

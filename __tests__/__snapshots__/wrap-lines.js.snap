@@ -483,7 +483,6 @@ exports[`SyntaxHighlighter allows lineProps as an object 1`] = `
       }
     >
       
-
     </span>
   </code>
 </pre>
@@ -972,7 +971,6 @@ exports[`SyntaxHighlighter allows lineProps as function 1`] = `
       }
     >
       
-
     </span>
   </code>
 </pre>
@@ -1417,7 +1415,6 @@ exports[`SyntaxHighlighter component renders correctly 1`] = `
       style={Object {}}
     >
       
-
     </span>
   </code>
 </pre>
