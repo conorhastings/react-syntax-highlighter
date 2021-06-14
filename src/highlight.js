@@ -336,7 +336,7 @@ export default function(defaultAstGenerator, defaultStyle) {
     renderer,
     PreTag = 'pre',
     CodeTag = 'code',
-    code = Array.isArray(children) ? children[0] : children,
+    code = (Array.isArray(children) ? children[0] : children) || '',
     astGenerator,
     ...rest
   }) {
