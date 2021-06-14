@@ -366,6 +366,12 @@ export default function(defaultAstGenerator, defaultStyle) {
           style: Object.assign({}, customStyle)
         });
 
+    if (wrapLongLines) {
+      codeTagProps.style = { ...codeTagProps.style, whiteSpace: 'pre-wrap' };
+    } else {
+      codeTagProps.style = { ...codeTagProps.style, whiteSpace: 'pre' };
+    }
+
     if (!astGenerator) {
       return (
         <PreTag {...preProps}>
@@ -408,12 +414,6 @@ export default function(defaultAstGenerator, defaultStyle) {
       lineNumberStyle,
       wrapLongLines
     );
-
-    if (wrapLongLines) {
-      codeTagProps.style = { ...codeTagProps.style, whiteSpace: 'pre-wrap' };
-    } else {
-      codeTagProps.style = { ...codeTagProps.style, whiteSpace: 'pre' };
-    }
 
     return (
       <PreTag {...preProps}>
