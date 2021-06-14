@@ -117,7 +117,7 @@ function createLineElement({
   }
 
   if (wrapLongLines & showLineNumbers) {
-    properties.style = { ...properties.style, display: 'flex' };
+    properties.style = { ...properties.style, display: 'flex', flexWrap: 'wrap' };
   }
 
   return {
@@ -326,7 +326,7 @@ export default function(defaultAstGenerator, defaultStyle) {
     },
     useInlineStyles = true,
     showLineNumbers = false,
-    showInlineLineNumbers = true,
+    showInlineLineNumbers = false,
     startingLineNumber = 1,
     lineNumberContainerStyle,
     lineNumberStyle = {},
