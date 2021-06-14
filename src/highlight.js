@@ -140,7 +140,7 @@ function flattenCodeTree(tree, className = [], newTree = []) {
       );
     } else if (node.children) {
       const classNames = className.concat(node.properties.className);
-      newTree = newTree.concat(flattenCodeTree(node.children, classNames));
+      flattenCodeTree(node.children, classNames).forEach(i => newTree.push(i));
     }
   }
   return newTree;
