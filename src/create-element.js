@@ -208,5 +208,7 @@ export default function createElement({
         {children}
       </TagName>
     );
+  } else if (React.isValidElement(node)) {
+    return node;
   }
 }

@@ -7,6 +7,7 @@
   "sideEffects": false,
   "dependencies": {
     "@babel/runtime": "^7.3.1",
+    "cross-env": "^7.0.3",
     "highlight.js": "^10.4.1",
     "lowlight": "^1.17.0",
     "prismjs": "^1.22.0",
@@ -60,8 +61,8 @@
   "scripts": {
     "dev": "webpack-dev-server --hot --inline",
     "build": "npm run build:cjs && npm run build:esm && webpack",
-    "build:cjs": "BABEL_ENV=cjs babel src --out-dir ./dist/cjs",
-    "build:esm": "BABEL_ENV=esm babel src --out-dir ./dist/esm",
+    "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir ./dist/cjs",
+    "build:esm": "cross-env BABEL_ENV=esm babel src --out-dir ./dist/esm",
     "watch": "npm run build:esm -- --watch",
     "build-styles-hljs": "node ./scripts/build-stylesheets-highlightjs.js",
     "build-languages-hljs": "node ./scripts/build-languages-highlightjs.js",

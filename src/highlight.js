@@ -7,18 +7,31 @@ function getNewLines(str) {
   return str.match(newLineRegex);
 }
 
-function getAllLineNumbers({ lines, startingLineNumber, style }) {
+function defaultLineNumberRenderer({ number, style, showInlineLineNumbers }) {
+  return (
+    <span
+      key={`line-${number}`}
+      className={
+        showInlineLineNumbers
+          ? 'comment linenumber react-syntax-highlighter-line-number'
+          : 'react-syntax-highlighter-line-number'
+      }
+      style={style}
+    >
+      {showInlineLineNumbers ? `${number}` : `${number}\n`}
+    </span>
+  );
+}
+
+function getAllLineNumbers({ lines, startingLineNumber, style, renderer }) {
   return lines.map((_, i) => {
     const number = i + startingLineNumber;
-    return (
-      <span
-        key={`line-${i}`}
-        className="react-syntax-highlighter-line-number"
-        style={typeof style === 'function' ? style(number) : style}
-      >
-        {`${number}\n`}
-      </span>
-    );
+    const lineNumberRenderer = renderer || defaultLineNumberRenderer;
+    return lineNumberRenderer({
+      number,
+      style: typeof style === 'function' ? style(number) : style,
+      showInlineLineNumbers: false
+    });
   });
 }
 
@@ -27,14 +40,16 @@ function AllLineNumbers({
   codeStyle,
   containerStyle = { float: 'left', paddingRight: '10px' },
   numberStyle = {},
-  startingLineNumber
+  startingLineNumber,
+  renderer
 }) {
   return (
     <code style={Object.assign({}, codeStyle, containerStyle)}>
       {getAllLineNumbers({
         lines: codeString.replace(/\n$/, '').split('\n'),
         style: numberStyle,
-        startingLineNumber
+        startingLineNumber,
+        renderer
       })}
     </code>
   );
@@ -44,26 +59,13 @@ function getEmWidthOfNumber(num) {
   return `${num.toString().length}.25em`;
 }
 
-function getInlineLineNumber(lineNumber, inlineLineNumberStyle) {
-  return {
-    type: 'element',
-    tagName: 'span',
-    properties: {
-      key: `line-number--${lineNumber}`,
-      className: [
-        'comment',
-        'linenumber',
-        'react-syntax-highlighter-line-number'
-      ],
-      style: inlineLineNumberStyle
-    },
-    children: [
-      {
-        type: 'text',
-        value: lineNumber
-      }
-    ]
-  };
+function getInlineLineNumber(lineNumber, inlineLineNumberStyle, renderer) {
+  const lineNumberRenderer = renderer || defaultLineNumberRenderer;
+  return lineNumberRenderer({
+    number: lineNumber,
+    style: inlineLineNumberStyle,
+    showInlineLineNumbers: true
+  });
 }
 
 function assembleLineNumberStyles(
@@ -101,7 +103,8 @@ function createLineElement({
   lineProps = {},
   className = [],
   showLineNumbers,
-  wrapLongLines
+  wrapLongLines,
+  lineNumberRenderer
 }) {
   const properties =
     typeof lineProps === 'function' ? lineProps(lineNumber) : lineProps;
@@ -113,7 +116,9 @@ function createLineElement({
       lineNumber,
       largestLineNumber
     );
-    children.unshift(getInlineLineNumber(lineNumber, inlineLineNumberStyle));
+    children.unshift(
+      getInlineLineNumber(lineNumber, inlineLineNumberStyle, lineNumberRenderer)
+    );
   }
 
   if (wrapLongLines & showLineNumbers) {
@@ -128,19 +133,27 @@ function createLineElement({
   };
 }
 
-function flattenCodeTree(tree, className = [], newTree = []) {
+function flattenCodeTree(
+  tree,
+  className = [],
+  newTree = [],
+  lineNumberRenderer
+) {
   for (let i = 0; i < tree.length; i++) {
     const node = tree[i];
     if (node.type === 'text') {
       newTree.push(
         createLineElement({
           children: [node],
-          className: [...new Set(className)]
+          className: [...new Set(className)],
+          lineNumberRenderer
         })
       );
     } else if (node.children) {
       const classNames = className.concat(node.properties.className);
-      newTree = newTree.concat(flattenCodeTree(node.children, classNames));
+      newTree = newTree.concat(
+        flattenCodeTree(node.children, classNames, [], lineNumberRenderer)
+      );
     }
   }
   return newTree;
@@ -155,7 +168,8 @@ function processLines(
   startingLineNumber,
   largestLineNumber,
   lineNumberStyle,
-  wrapLongLines
+  wrapLongLines,
+  lineNumberRenderer
 ) {
   const tree = flattenCodeTree(codeTree.value);
   const newTree = [];
@@ -172,7 +186,8 @@ function processLines(
       lineProps,
       className,
       showLineNumbers,
-      wrapLongLines
+      wrapLongLines,
+      lineNumberRenderer
     });
   }
 
@@ -183,7 +198,13 @@ function processLines(
         lineNumber,
         largestLineNumber
       );
-      children.unshift(getInlineLineNumber(lineNumber, inlineLineNumberStyle));
+      children.unshift(
+        getInlineLineNumber(
+          lineNumber,
+          inlineLineNumberStyle,
+          lineNumberRenderer
+        )
+      );
     }
     return children;
   }
@@ -211,7 +232,8 @@ function processLines(
           const children = tree.slice(lastLineBreakIndex + 1, index).concat(
             createLineElement({
               children: [newChild],
-              className: node.properties.className
+              className: node.properties.className,
+              lineNumberRenderer
             })
           );
 
@@ -228,7 +250,8 @@ function processLines(
             const lastLineInPreviousSpan = { type: 'text', value: `${text}` };
             const newElem = createLineElement({
               children: [lastLineInPreviousSpan],
-              className: node.properties.className
+              className: node.properties.className,
+              lineNumberRenderer
             });
             tree.splice(index + 1, 0, newElem);
           } else {
@@ -330,6 +353,7 @@ export default function(defaultAstGenerator, defaultStyle) {
     startingLineNumber = 1,
     lineNumberContainerStyle,
     lineNumberStyle = {},
+    lineNumberRenderer = defaultLineNumberRenderer,
     wrapLines,
     wrapLongLines = false,
     lineProps = {},
@@ -349,6 +373,7 @@ export default function(defaultAstGenerator, defaultStyle) {
         numberStyle={lineNumberStyle}
         startingLineNumber={startingLineNumber}
         codeString={code}
+        renderer={lineNumberRenderer}
       />
     ) : null;
 
@@ -406,7 +431,8 @@ export default function(defaultAstGenerator, defaultStyle) {
       startingLineNumber,
       largestLineNumber,
       lineNumberStyle,
-      wrapLongLines
+      wrapLongLines,
+      lineNumberRenderer
     );
 
     if (wrapLongLines) {
